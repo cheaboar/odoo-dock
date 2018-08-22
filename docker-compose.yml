@@ -1,0 +1,46 @@
+version: "3"
+
+networks:
+  frontend:
+    driver: ${NETWORKS_DRIVER}
+  backend:
+    driver: ${NETWORKS_DRIVER}
+
+volumes:
+  odoo:
+    driver: ${VOLUMES_DRIVER}
+  postgres:
+    driver: ${VOLUMES_DRIVER}
+  redis:
+    driver: ${VOLUMES_DRIVER}
+  mongo:
+    driver: ${VOLUMES_DRIVER}
+  elasticsearch:
+    driver: ${VOLUMES_DRIVER}
+
+services:
+  odoo:
+    build:
+      context: ./${ODOO_VERSION}
+    volumes:
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+    ports:
+      - "${ODOO_APP_PORT}:8069"
+    tty: true
+    depends_on: 
+      - db
+    networks:
+      - frontend
+      - backend
+  
+  db:
+    image: postgres:${POSTGRESQL_TAG}
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRESQL_USER}
+    ports:
+      - "${POSTGRES_EXPODE_PORT}:5432"
+    networks:
+      - frontend
+      - backend
+    tty: true
