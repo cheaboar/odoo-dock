@@ -4,7 +4,6 @@
 使用docker搭建odoo的开发环境，系统为debian:stretch，odoo版本默认为11.0，对于不同版本可以在.env配置ODOO_VERSION，数据库使用postgresql:9.4
 
 ### odoo docker开发环境搭建
-======
 
 - 拉取代码库
 - 配置 .env文件
