@@ -4,6 +4,8 @@ MAINTAINER Odoo S.A. <info@odoo.com>
 # Generate locale C.UTF-8 for postgres and general locale data
 ENV LANG C.UTF-8
 
+COPY ./sources.list /etc/apt/
+
 # Install some deps, lessc and less-plugin-clean-css, and wkhtmltopdf
 RUN set -x; \
         apt-get update \
@@ -20,15 +22,16 @@ RUN set -x; \
             libssl1.0-dev \
             xz-utils \
             python3-watchdog \
-            nodejs \
         && curl -o wkhtmltox.tar.xz -SL https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz \
         && echo '3f923f425d345940089e44c1466f6408b9619562 wkhtmltox.tar.xz' | sha1sum -c - \
         && tar xvf wkhtmltox.tar.xz \
         && cp wkhtmltox/lib/* /usr/local/lib/ \
         && cp wkhtmltox/bin/* /usr/local/bin/ \
-        && cp -r wkhtmltox/share/man/man1 /usr/local/share/man/
+        && cp -r wkhtmltox/share/man/man1 /usr/local/share/man/ \
+        && curl -sL https://deb.nodesource.com/setup_8.x |  bash - \
+        && apt-get install -y nodejs
 
-RUN ln -s /usr/bin/nodejs /usr/bin/node
+
 RUN npm install -g less
 
 # Install Odoo
@@ -49,6 +52,10 @@ RUN chown odoo /etc/odoo/odoo.conf
 RUN mkdir -p /mnt/extra-addons \
         && chown -R odoo /mnt/extra-addons
 VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
+
+COPY ./requirements.txt /tmp/requirements.txt
+RUN pip3 install -r /tmp/requirements.txt
+RUN rm /tmp/requirements.txt 
 
 # Expose Odoo services
 EXPOSE 8069 8071
